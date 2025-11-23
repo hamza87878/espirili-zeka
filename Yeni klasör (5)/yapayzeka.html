@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Espirili Zeka 🤖</title>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      font-family: Arial, sans-serif;
+      color: white;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #chat-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .message {
+      max-width: 70%;
+      margin: 10px;
+      padding: 10px 15px;
+      border-radius: 12px;
+      line-height: 1.5;
+    }
+    .user {
+      background-color: #0b93f6;
+      align-self: flex-end;
+      text-align: right;
+      margin-left: auto;
+    }
+    .bot {
+      background-color: #2e2e2e;
+      align-self: flex-start;
+      text-align: left;
+      margin-right: auto;
+    }
+    #input-area {
+      display: flex;
+      padding: 10px;
+      background-color: #2b2b2b;
+    }
+    #userInput {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #1e1e1e;
+      color: white;
+    }
+    #sendButton {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background-color: #0b93f6;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #sendButton:hover {
+      background-color: #0077cc;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat-container">
+  <div class="message bot">👋 Selam! Sayılar, selamlar veya saçma sorularla gel, ben hep cevabım 😄</div>
+</div>
+
+<div id="input-area">
+  <input type="text" id="userInput" placeholder="Bir mesaj yaz..." autocomplete="off">
+  <button id="sendButton" onclick="sendMessage()">Gönder</button>
+</div>
+
+<script>
+  // Orijinal cevap havuzları
+  const numberTemplates = [
+    (n) => `Bence ${n} saat yeterli... ama ${n + 2} saat uyursan rüyanda roket yaparsın 🚀`,
+    (n) => `${n}? İdeal ama ${n * 2} yaparsan uzaya çıkarsın 🌌`,
+    (n) => `Mantıklı cevap: ${n}. Ama eğlenceli cevap: ${n + 1} 😄`,
+    (n) => `Hmm... ${n} olabilir ama ${n - 1} daha fiyakalı duruyor.`,
+    (n) => `${n} tamamdır. Ama bonus istersen ${n + 5}! 🤑`,
+  ];
+
+  const greetingMessages = [
+    "Merhaba! 🤗 Nasılsın?",
+    "Selam! Beni özledin mi? 😄",
+    "Heyyy! Hoş geldin! 👋",
+    "Ooo selamlar! Hazır mısın zeka fırtınasına? 🧠🌩️",
+    "Selam! Bu bir yapay zekanın selamı 😎"
+  ];
+
+  const generalResponses = [
+    "Bu sorunun cevabı seni daha da çok soru sormaya zorlamaz mı? 🤔",
+    "Sen bu cevabı hazır mısın? Belki de cevap sensin. 😄",
+    "Cevap mı arıyorsun, yoksa sadece konuşmak mı istiyorsun? 🗣️",
+    "Peki ya cevap seni değiştirecekse? 🌪️",
+    "Ben sormasam da sen kendine sordun mu bu soruyu? 🤨"
+  ];
+
+  // Kullanılanları takip eden kopyalar
+  let usedNumbers = [], usedGreetings = [], usedGenerals = [];
+
+  function getUniqueResponse(pool, used, isFunction = false, arg = null) {
+    if (used.length === pool.length) used.length = 0; // hepsi kullanıldıysa sıfırla
+    let available = pool.filter((item) => !used.includes(item));
+    let selected = available[Math.floor(Math.random() * available.length)];
+    used.push(selected);
+    return isFunction ? selected(arg) : selected;
+  }
+
+  function containsNumber(text) {
+    const numberMatch = text.match(/\d+/);
+    return numberMatch ? parseInt(numberMatch[0], 10) : null;
+  }
+
+  function detectGreeting(text) {
+    const lower = text.toLowerCase();
+    return ["selam", "merhaba", "naber", "hey", "sa", "slm", "nasılsın"].some(kw => lower.includes(kw));
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("userInput");
+    const chat = document.getElementById("chat-container");
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Kullanıcı mesajı
+    const userDiv = document.createElement("div");
+    userDiv.className = "message user";
+    userDiv.textContent = text;
+    chat.appendChild(userDiv);
+
+    input.value = "";
+
+    // Bot yazıyor
+    const botDiv = document.createElement("div");
+    botDiv.className = "message bot";
+    botDiv.textContent = "Yazıyor...";
+    chat.appendChild(botDiv);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      const number = containsNumber(text);
+      let reply = "";
+
+      if (detectGreeting(text)) {
+        reply = getUniqueResponse(greetingMessages, usedGreetings);
+      } else if (number !== null) {
+        reply = getUniqueResponse(numberTemplates, usedNumbers, true, number);
+      } else {
+        reply = getUniqueResponse(generalResponses, usedGenerals);
+      }
+
+      botDiv.textContent = reply;
+      chat.scrollTop = chat.scrollHeight;
+    }, 800);
+  }
+
+  document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+  });
+</script>
+
+</body>
+</html>
