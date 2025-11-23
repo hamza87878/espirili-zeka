@@ -198,6 +198,28 @@
     if (e.key === "Enter") sendMessage();
   });
 </script>
+  <script>
+  // Premium simülasyonu örneği
+  let isPremium = false;
+  const premiumBtn = document.getElementById("premiumBtn");
+  const premiumStatus = document.getElementById("premiumStatus");
+
+  if(premiumBtn){
+    premiumBtn.addEventListener("click", () => {
+      isPremium = true;
+      premiumStatus.textContent = "Premium Kullanıcı 💎";
+      localStorage.setItem("premium", "true");
+      alert("Tebrikler! Premium özellikler açıldı!");
+    });
+  }
+
+  if(localStorage.getItem("premium") === "true"){
+    isPremium = true;
+    premiumStatus.textContent = "Premium Kullanıcı 💎";
+  }
+</script>
+
 
 </body>
 </html>
+
